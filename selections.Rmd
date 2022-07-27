@@ -1,0 +1,125 @@
+---
+title: "Selections"
+author: "Cletus Emmanuel"
+date: '2022-07-22'
+output:
+  rmdformats::readthedown
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## Loading required packages
+* tidyverse
+* readxl
+* magick
+* knitr
+* tcltk
+
+```{r, echo=TRUE, message=FALSE}
+library(tidyverse)
+library(readxl)
+## library(magick)
+library(tcltk)
+library(knitr)
+
+```
+
+### Load trial file
+
+```{r, echo=FALSE, message=TRUE}
+###trial <- read_excel(file.choose(), sheet = "Advancement")
+
+trial <- read.csv("tables/AYT20_SINDEX.csv")
+###attach(trial)
+
+tria <- trial %>% select(-c("SN","X","Selected", "X.1"))
+get_genotypes <- function(){
+  return(trial$accession_name)
+}
+get_genotypes()
+```
+
+
+```{r, echo=FALSE, message=FALSE}
+####image_list <- list.files(path = tclvalue(tkchooseDirectory()))
+
+### Select a directory and import images
+image_list <- list.files(path = "images/photos/")
+head(image_list)
+```
+
+
+
+```{r, echo=FALSE, message=FALSE}
+
+get_images <- function(genotype, pattern){
+list_gen <- c()
+  for(i in 1:length(image_list)){
+    if(stringr::str_detect(image_list[[i]], regex(genotype)) == TRUE){
+      if(stringr::str_detect(image_list[[i]], regex(pattern)) == TRUE){
+        list_gen[[length(list_gen) + 1]] <- image_list[[i]]
+      }
+    }
+  }
+  return(list_gen)
+}
+
+get_images(get_genotypes()[[1]], "rep1")
+get_images(get_genotypes()[[1]], "rep2")
+```
+
+
+```{r, echo=FALSE}
+
+table_chunk <- function(gene){
+  df <- trial %>% filter(accession_name == gene)
+  FYLD <- df$FYLD
+  DYLD <- df$DYLD
+  DM <- df$DM
+  SI <- df$SINDEX
+  new_df <- data.frame(Trait = c("FYLD", "DYLD", "DM", "SINDEX"), 
+                       Value = c(FYLD, DYLD, DM, SI))
+  return(new_df)
+}
+
+table_chunk(get_genotypes()[[1]])
+
+```
+
+Load all the images of the selected clones for this trial
+
+```{r, results="asis", echo=FALSE"}
+
+  genotypes <- get_genotypes()
+  i <- 1
+  for(i in 1:length(genotypes)){
+    j <- 1
+    get_images(genotypes[[i]], "rep1")
+    if(!length(get_images(genotypes[[i]], "rep1")) < 1){
+      rep1_images <- get_images(genotypes[[i]], "rep1")
+      rep2_images <- get_images(genotypes[[i]], "rep2")
+      
+      cat("\n")
+      cat("### Genotype: ", genotypes[[i]])
+      cat("\n")
+      df <- table_chunk(genotypes[[i]])
+      print(kable(df, caption = ""))
+      if(!length(get_images(genotypes[[i]], "rep2")) < 1){
+      images <- append(rep1_images, rep2_images)
+        for(j in 1:length(rep1_images)){
+          cat("\n")
+          image.path <- paste0("images/photos/",rep1_images[[1]])  
+          image.path2 <- paste0("images/photos/",rep2_images[[1]])  
+          cat("![](",image.path,") <br>")
+          cat("<center> rep 1 </center>")
+          cat("![](",image.path2,") <br>")
+          cat("<center> rep 2 </center> <br> <br>")
+          cat("\n")
+        }
+      }
+    }
+  }
+```
+

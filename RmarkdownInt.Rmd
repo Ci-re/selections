@@ -1,0 +1,175 @@
+---
+title: "Advanced Clones"
+author: "Cletus Emmanuel"
+date: '2022-07-09'
+runtime: shiny
+output: 
+  html_document:
+    toc: yes
+    toc_depth: 3
+    toc_float: true
+    code_folding: hide
+    theme: flatly
+    highlight: textmate
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## Objective
+
+This is an R markdown document to dynamically select clones and render their pictures and their statistic
+
+#### Import
+
+Import required packages like `tidyverse, shinyjs, shiny, ggplot2`
+
+```{r import-packages, echo=FALSE, include=FALSE}
+library(shiny)
+library(magick)
+library(shinyjs)
+library(tidyverse)
+library(ggplot2)
+library(stringr)
+library(readxl)
+```
+
+### Step 1
+
+Get our working directory and list of files in our working directory
+
+```{r, include=FALSE}
+  getwd()
+  
+```
+
+```{r, include=FALSE}
+
+    image_list <- list.files(path = "images/photos/", pattern = c(".jpg", ".png"))
+    image_list
+
+```
+
+```{r get-file-data, include=FALSE}
+  table_data <- read_excel("tables/21.GS.C4.AYT.45.IB_Selections.xls", sheet = "Advancement", 
+                           na = c("NA", ".","na"))
+  render_list_of_accession <- function(){
+    list_of_accession <- table_data %>% select(Genotype)
+    return(list_of_accession)
+  }
+```
+
+```{r get-an-input, echo=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+  
+  lists_accession <- as.list(render_list_of_accession())
+  lists_accession
+  ui <- fluidPage(
+    selectInput(inputId = "v_dropdown", label = "Select a variety", 
+                choices = lists_accession, ),
+    textOutput("res"),
+    fluidRow(
+      column(6, plotOutput("img", width = 300, height = 300)),
+      column(6, plotOutput("img1", width = 300, height = 300)),
+    ),
+    br(),
+    fluidRow(
+      column(6, plotOutput("img2", width = 300, height = 300)),
+      column(6, plotOutput("img3", width = 300, height = 300)),
+    ),
+    br(),
+    plotOutput("img4", width = 300, height = 300),
+    DT::dataTableOutput("summary")
+  )
+  
+  server <- function(input, output, session){
+    
+      check_presence <- reactive({
+        req(input$v_dropdown)
+        result <- input$v_dropdown
+        selected <- c();
+        max_length <- length(image_list)
+        i <- 1
+        for(i in 1:max_length){
+          if(stringr::str_detect(image_list[[i]], regex(result)) == TRUE){
+            print(stringr::str_detect(image_list[[i]], regex(result)))
+            selected[[length(selected) + 1]] <- image_list[[i]]
+          }
+        }
+        return(selected)
+      })
+      
+      render_clone_statistic <- reactive({
+        req(input$v_dropdown)
+        selected <- input$v_dropdown
+        table_data$Genotype
+        selected_genotype <- table_data %>% filter(Genotype == selected)
+        genotype <- selected_genotype$Genotype
+        MCMDS <- selected_genotype$MCMDS
+        FYLD <- selected_genotype$FYLD
+        DYLD <- selected_genotype$DYLD
+        DM <- selected_genotype$DM
+        SI <- selected_genotype$SINDEX
+        
+        df <- data.frame(trait = c("GENOTYPE","MCMDS", "FYLD", "DYLD", "DM", "SI"), 
+                         value =  c(genotype, MCMDS, FYLD, DYLD, DM, SI))
+        df 
+      })
+      
+      output$img <- renderPlot({
+        result <- check_presence()
+        if(length(result) > 0){
+          image <- image_read(paste("images/photos/", result[[1]], sep = ""))
+          image_ggplot(image)
+        } else {
+          output$res <- renderText({"Unable to find image"})  
+        }
+    })
+      output$img1 <- renderPlot({
+        result <- check_presence()
+        if(length(result) > 0){
+          image <- image_read(paste("images/photos/", result[[2]], sep = ""))
+          image_ggplot(image)
+        } else {
+          output$res <- renderText({"Unable to find image"})  
+        }
+    })
+      output$img2 <- renderPlot({
+        result <- check_presence()
+        if(length(result) > 0){
+          image <- image_read(paste("images/photos/", result[[3]], sep = ""))
+          image_ggplot(image)
+        } else {
+          output$res <- renderText({"Unable to find image"})  
+        }
+    })
+      output$img3 <- renderPlot({
+        result <- check_presence()
+        if(length(result) > 0){
+          image <- image_read(paste("images/photos/", result[[4]], sep = ""))
+          image_ggplot(image)
+        } else {
+          output$res <- renderText({"Unable to find image"})  
+        }
+    })
+      
+      output$img4 <- renderPlot({
+        result <- check_presence()
+        if(length(result) > 4){
+          image <- image_read(paste("images/photos/",result[[5]], sep=""))
+          image_ggplot(image)
+        } else {
+          return(NULL)
+        }
+      })
+      output$summary <- DT::renderDataTable({
+        DT::datatable(data.frame(render_clone_statistic()), 
+                      options = list(scrollX = TRUE))
+    })   
+      
+  }
+  
+  shinyApp(ui, server, options = list(height = 2000, width = "100%"))
+  
+```

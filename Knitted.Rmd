@@ -1,0 +1,75 @@
+---
+title: "Practice"
+author: "Cletus Emmanuel"
+date: '2022-07-08'
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## R Markdown script for practice
+This is my first R-Markdown script that i will be working on for some *projects* I hope, it is worth it
+
+Superscripting is done by using ^superscript^
+
+Subscripting is done by using ~subscript~
+
+Striking through is done by using --subscript--
+
+**Bold** will make your text bold
+
+*Italics* will make your text italisized
+
+>Blockquote
+will continue till the next paragraph break
+
+Creating an ordered list in markdown
+1. Element 1
+2. Element 2
+  
+### An unordered list in R markdown
+* Element 1
+* Element 2
+
+
+### Using links
+[Link text](http://www.tbills.ng)
+
+
+
+
+![This lovely image](images/IMG_20220524_181152.jpg){width=100}
+
+
+```
+Some codes
+Some more codes that should have been a good one
+  
+
+```
+
+## Including Plots
+
+You can also embed plots, for example:
+
+```{r echo=TRUE}
+x <- round(rnorm(3, mean = 3, sd = 1))
+
+x
+
+
+```
+
+
+
+```{r}
+
+output <- runif(2)
+
+
+output
+
+
+```

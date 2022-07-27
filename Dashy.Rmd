@@ -1,0 +1,56 @@
+---
+title: "Dshbrd"
+author: "Cletus Emmanuel"
+date: '2022-07-21'
+output: html_document
+runtime: shiny
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+
+```{r}
+  library(shinydashboard)
+  library(shiny)
+  library(tidyverse)
+  library(stringr)
+  library(readxl)
+```
+
+
+```{r}
+header <- dashboardHeader(
+  title = "My Dashboard"
+)
+
+sidebar <- dashboardSidebar(
+  sidebarMenuOutput("menu"),
+  sidebarMenuOutput("select_genotype")
+)
+
+body <- dashboardBody(
+  tabItems(
+    tabItem(tabName = "dashbord",
+        h2("Dashboard tab content")
+    )
+  )
+)
+
+ui <- dashboardPage(header, sidebar, body)
+server <- function(input, output, session){
+  output$menu <- renderMenu({
+    sidebarMenu(
+      menuItem("Menu item", icon = icon("dashboard"))
+    )
+  })
+  output$select_genotype <- renderMenu({
+    sidebarMenu(sidebarSearchForm())
+  })
+}
+
+shinyApp(ui, server)
+
+```
+

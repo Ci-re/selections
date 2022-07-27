@@ -1,0 +1,66 @@
+---
+title: "Rmarkdown Excercise"
+author: "Cletus Emmanuel"
+date: '2022-07-08'
+output: 
+  html_document:
+    toc: yes
+    toc_depth: 3
+    toc_float: true
+    code_folding: hide
+    theme: flatly
+    highlight: textmate
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## Scientific names
+
+In biology, Genus and Species names are *italicised* but higher taxonomic levels and the name of the authority are not this frequent leads to errors by students (and staff)
+
+This means that for the scarabead species *Something something*
+
+Alternatively as list
+* Something
+* Something
+* Something
+* Something
+
+
+### *Proagaderus something*
+This specie has spectacularly particular horns. There is a picture here ![Image picture](images/IMG_20220524_181113_2.jpg) which you can see below
+
+
+
+```{r cars}
+summary(cars)
+```
+
+### Some useful chunk options
+
+* `fig.width = XX`, `fig.height = YY` set figure size in inches
+* `fig.cap = figure caption` generates a figure caption
+* `comment = NA` turn off the ## symbols that appear at the start of any text output
+* `warning = FALSE` don't include warnings
+* `message = FALSE` don't include messages
+* `tidy = TRUE` try to stop long lines of code spilling over the edge
+* `eval = FALSE` try to stop long lines of code spilling over the edge
+
+NB the chunk header must be on a single line (which  can be of any length).
+
+
+
+```{r pressure, echo=FALSE}
+ knitr::opts_chunk$set(fig.width = 5, fig.height = 4)
+```
+
+### Adding Maths
+
+You can add maths to an R markdown document by using Latex maths annotation:
+
+$$ \sum \left(x - \bar{x} \right)^2 $$
+A more complex example
+
+$$ \LARGE s^2 = \frac{\sum \left(x - \bar{x} \right)^2}{n-1} $$
