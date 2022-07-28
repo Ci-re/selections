@@ -23,6 +23,8 @@ library(knitr)
 
 # Summary Statistics
 
+## 21.GS.C4B.AYT.20.IB
+
 ```{r, echo=FALSE, message=FALSE, error=FALSE}
 library(tidyverse)
 
@@ -93,7 +95,6 @@ ayt20_sindex %>%
   labs(title = "Distribution of Raw Phenotypic Values and Selection Index")
 ```
 
-
 ### Raw phenotypic values difference from check mean
 ```{r, echo=FALSE, message=FALSE, error=FALSE}
 ayt20_sindex_checkdiff %>% 
@@ -136,7 +137,9 @@ ayt20_sindex_checkdiff %>%
 ggsave("t10p_barplot1.pdf", width=20, height=20)
 
 ```
-# table include check_mean values
+# Check Mean Data
+
+### table include check_mean values
 
 ```{r, echo=FALSE, message=FALSE, error=FALSE}
 library(knitr)
@@ -148,7 +151,7 @@ ayt20_sindex %>%
   kable_paper() %>%
   scroll_box(width = "100%", height = "200px")
 ```
-# table for percent comparism to check_mean values
+### Table for percent comparism to check_mean values
 
 ```{r, echo=FALSE, message=FALSE, error=FALSE}
 ayt20_sindex_checkdiff %>% 
@@ -538,8 +541,7 @@ superheat(dplyr::select(a2h, -sindex, -b),
 
 ```
 
-
-# correlation plots for traits and selection index comparism
+# Correlation plots for traits and selection index comparism
 
 ```{r, echo=FALSE, message=FALSE,error=FALSE}
 library(ggcorrplot)
@@ -572,46 +574,52 @@ column_to_rownames(ayt20_sindex, var =  "accession_name") %>%
   ggplot2::coord_flip()
 
 ```
-# Relationship between traits and SINDEX
 
-```{r, echo=FALSE, message=FALSE,error=FALSE}
-ayt20s_long <- ayt20_sindex %>% 
-  select(-c(l,a,b, rtwt)) %>% 
-  select(accession_name,fyld,dyld,dm,shtwt,everything()) %>% 
-  pivot_longer(-c(accession_name,sindex), names_to = "traits", values_to = "values")
+# Relationship between Traits and SINDEX
 
-library(ggrepel)
-
-ayt20s_long %>% 
-ggplot(aes(values, sindex)) + 
-#geom_hex(aes(color = SI_W), bins = 30) + 
-geom_point(aes(color = sindex), alpha = 0.8) + 
-#geom_hex(aes(color = SI_W), alpha = 0.6) + 
-scale_colour_gradient(low = "blue", high = "red") +
-facet_wrap(~traits, scales = "free") + 
-geom_text_repel(data=subset(ayt20s_long, sindex > 80), aes(values, sindex,label=accession_name), size = 2)
-
-# ggsave("SIvsTraits.pdf", width = 12, height = 8)
+```{r, results='asis', echo=FALSE, message=FALSE,error=FALSE}
+# ayt20s_long <- ayt20_sindex %>%
+#   select(-c(l,a,b, rtwt)) %>%
+#   select(accession_name,fyld,dyld,dm,shtwt,everything()) %>%
+#   pivot_longer(-c(accession_name,sindex), names_to = "traits", values_to = "values")
+# 
+# library(ggrepel)
+# 
+# ayt20s_long %>%
+# ggplot(aes(values, sindex)) +
+# #geom_hex(aes(color = SI_W), bins = 30) +
+# geom_point(aes(color = sindex > 80), alpha = 0.8) +
+# #geom_hex(aes(color = SI_W), alpha = 0.6) +
+# # scale_colour_gradient(low = "blue", high = "red") +
+# facet_wrap(~traits, scales = "free", ncol = 2) +
+# geom_text_repel(data=subset(ayt20s_long, sindex > 80), aes(values, sindex,label=accession_name), size = 4)
+# #
+# ggsave("images/plots/SIvsTraits.jpg", width = 12, height = 15)
+cat("![](","images/plots/SIvsTraits.jpg",")")
 ```
-# selection index vs traits (%) difference to check mean
-```{r, echo=FALSE, message=FALSE,error=FALSE}
-ayt20_scd_long <- ayt20_sindex_checkdiff %>% 
-  select(-c(l,a,b, rtwt)) %>% 
-  select(accession_name,fyld,dyld,dm,shtwt,everything()) %>% 
-  pivot_longer(-c(accession_name,rank,sindex), names_to = "traits", values_to = "values")
 
-library(ggrepel)
+# Selection index vs traits (%) difference to check mean
 
-ayt20_scd_long %>% 
-ggplot(aes(values, sindex)) + 
-#geom_hex(aes(color = SI_W), bins = 30) + 
-geom_point(aes(color = sindex), alpha = 0.8) + 
-#geom_hex(aes(color = SI_W), alpha = 0.6) + 
-scale_colour_gradient(low = "blue", high = "red") +
-facet_wrap(~traits, scales = "free") + 
-geom_text_repel(data=subset(ayt20_scd_long, sindex > 80), aes(values, sindex,label=accession_name), size = 2)
+```{r, results='asis', echo=FALSE, message=FALSE,error=FALSE}
+# ayt20_scd_long <- ayt20_sindex_checkdiff %>%
+#   select(-c(l,a,b, rtwt)) %>%
+#   select(accession_name,fyld,dyld,dm,shtwt,everything()) %>%
+#   pivot_longer(-c(accession_name,rank,sindex), names_to = "traits", values_to = "values")
+# 
+# library(ggrepel)
+# 
+# ayt20_scd_long %>%
+#   ggplot(aes(values, sindex)) +
+#   #geom_hex(aes(color = SI_W), bins = 30) +
+#   geom_point(aes(color = sindex > 80), alpha = 0.8) +
+#   #geom_hex(aes(color = SI_W), alpha = 0.6) +
+#   # scale_colour_gradient(low = "blue", high = "red") +
+#   facet_wrap(~traits, scales = "free", ncol = 2) +
+#   geom_text_repel(data=subset(ayt20_scd_long, sindex > 80),
+#                   aes(values, sindex,label=accession_name), size = 4)
+#   ggsave("../RMKRDpRCT/images/plots/SIvsTraits_p.jpg", width = 12, height = 15)
 
-# ggsave("SIvsTraits_p.pdf", width = 12, height = 8)
+  cat("![](","images/plots/SIvsTraits_p.jpg",")")
 
 ```
 
@@ -694,17 +702,22 @@ list_of_plots <- list.files(path = "images/plots/")
 ##get_plot("TMEB419")
 ```
 
+```{r, results='asis', echo=FALSE, message=FALSE, error=FALSE}
+plot_image_path <- "images/plots/plots.jpg"
+  cat("\n")
+  cat("# Percentage difference against checks mean")
+  cat("\n")
+  cat("![](",plot_image_path,")")
+  cat("<br> <br>")
+```
+
+
+# Genotype Images
 
 ```{r, results="asis", echo=FALSE, message=FALSE}
 
   genotypes <- get_genotypes()
   i <- 1
-  plot_image_path <- "images/plots/plots.jpg"
-  cat("\n")
-  cat("### Percentage difference against checks mean")
-  cat("\n")
-  cat("![](",plot_image_path,")")
-  cat("<br> <br>")
   cat("\n")
   for(i in 1:length(genotypes)){
     j <- 1
