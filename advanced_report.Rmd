@@ -1,0 +1,153 @@
+---
+title: "Advancement"
+author: "Cletus Emmanuel"
+date: '2022-08-01'
+output:
+  flexdashboard::flex_dashboard:
+    storyboard: true
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+```{r, echo=FALSE}
+library(flexdashboard)
+```
+
+```{r, echo=FALSE, message=FALSE, include=FALSE}
+setwd("~/Desktop/git_workspace/RMKRDpRCT/")
+library(tidyverse)
+library(readxl)
+## library(magick)
+library(tcltk)
+library(knitr)
+
+```
+
+
+### Check Mean Values
+
+```{r, echo=FALSE, include=FALSE, message=FALSE, error=FALSE}
+library(tidyverse)
+
+# ayt20_sindex selection
+
+ayt20_sindex <- read_csv("AYT20_SINDEX.csv") %>%
+  janitor::clean_names() %>% 
+  select(accession_name:sindex)
+
+
+# list of checks present in dataset
+checks <- c("IITA-TMS-IBA000070","TMEB419","TMS13F1160P0004","TMS14F1036P0007","IITA-TMS-IBA30572","IITA-TMS-IBA980581")
+
+# calculate for checks average 
+checks_mean <- ayt20_sindex %>%
+  filter(accession_name %in% checks) %>%
+  add_row(accession_name = "check_mean", summarise(., across(where(is.numeric), mean))) %>%
+  filter(accession_name == "check_mean")
+
+# insert check mean into dataset
+ayt20_sindex <- bind_rows(ayt20_sindex,checks_mean)
+
+# dataset for percentage difference against checks average
+ayt20_sindex_checkdiff <- ayt20_sindex %>% 
+  select(-sindex) %>% 
+  mutate(across(where(is.numeric), .fns = ~((./.[accession_name == "check_mean"]-1)*100))) %>% 
+  mutate(sindex=ayt20_sindex$sindex) %>% 
+  mutate(rank = factor(row_number()))
+
+
+#  skimr::skim(ayt20_sindex)
+# skimr::skim(ayt20_sindex_checkdiff)
+
+# Hmisc::describe(ayt20_sindex)
+# Hmisc::describe(ayt20_sindex_checkdiff)
+# 
+# psych::describe(ayt20_sindex)
+# psych::describe(ayt20_sindex_checkdiff)
+# 
+# summarytools::descr(ayt20_sindex)
+# summarytools::descr(ayt20_sindex_checkdiff)
+# 
+# summarytools::dfSummary(ayt20_sindex)
+# summarytools::dfSummary(ayt20_sindex_checkdiff)
+
+
+# pt_fun <- function(x, )
+# 
+# map2_df(checks_mean[,-1], ayt20_sindex[,-1], `/`) %>% 
+#   -1 * 100 %>% 
+#   add_column(accession_name = ayt20_sindex$accession_name, .before = "sprout")
+
+```
+
+```{r, include=FALSE, echo=FALSE, message=FALSE}
+ayt20_sindex_checkdiff %>% 
+  select(-c(l,a,b, rtwt)) %>% 
+  select(accession_name,fyld,dyld,dm,shtwt,everything()) %>% 
+  pivot_longer(-c(accession_name,rank,sindex), names_to = "traits", values_to = "values") %>%
+  
+ # group_by(traits) %>%
+  # top_frac(.1,sindex) %>%
+  #ungroup() %>%
+  
+  # mutate(traits = fct_reorder(traits, values)) %>%
+  ggplot(aes(fct_inorder(traits), values)) +
+  geom_col(aes(fill = values), stat = "identity", color=alpha("black",.3)) +
+  # facet_grid( vars(fct_inorder(traits)), vars(accession_name), scales = "free", space = "free") +
+  # geom_hline(aes(yintercept = 0, alpha = 0.1, color="blue")) +
+  geom_text(aes(label= round(values,2)), position = position_stack(vjust = 0.5)) +
+  # geom_text(aes(label=round(values, 2)), vjust=0) +
+  scale_fill_gradient2(low = "red", mid = "white", high = "green", midpoint= 0) +
+  scale_y_continuous(labels = function(x) paste0(x, "%")) +
+  facet_wrap(~accession_name, ncol = 1, strip.position = "right", scales = "free") +
+  labs(x = "traits", y = "percent difference from checks_mean") +
+  theme_bw() 
+  
+ggsave("t10p_barplot1.pdf", width=20, height=20)
+
+```
+
+
+```{r, echo=FALSE, message=FALSE, error=FALSE}
+library(knitr)
+library(kableExtra)
+ayt20_sindex %>% 
+  mutate_if(is.numeric, round,2) %>% 
+  kbl(.) %>%
+  # add_header_above(c("a" = 5, "b" = 18)) %>%
+  kable_paper() %>%
+  scroll_box(width = "100%", height = "200px")
+```
+
+```{r, echo=FALSE, message=FALSE, error=FALSE}
+ayt20_sindex_checkdiff %>% 
+  mutate_if(is.numeric, round,2) %>% 
+  kbl(.) %>%
+  # add_header_above(c("a" = 5, "b" = 18)) %>%
+  kable_paper() %>%
+  scroll_box(width = "100%", height = "200px")
+
+
+```
+---
+
+Some commentary
+
+
+### Third Chart
+
+
+```{r, results='asis', echo=FALSE, message=FALSE, error=FALSE}
+plot_image_path <- "images/plots/plots.jpg"
+  cat("\n")
+  cat("# Percentage difference against checks mean")
+  cat("\n")
+  cat("![](",plot_image_path,")")
+  cat("<br> <br>")
+```
+
+---
+
+Another commentary

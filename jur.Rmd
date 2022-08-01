@@ -1,0 +1,117 @@
+---
+title: "Untitled"
+author: "Cletus Emmanuel"
+date: '2022-07-28'
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+
+```{r, results='asis', fig.align='center', fig.pos='H'}
+
+library(cowplot)
+getwd()
+setwd("~/Desktop/git_workspace/RMKRDpRCT/")
+
+# ggdraw() + draw_image(image1, width = 0.5, s)
+
+image_list <- list.files("images/21.GS.C4B.AYT.20.IB_resize/", pattern = ".jpeg")
+image_list
+class(image_list[[1]])
+# for(i in 1:length(image_list)){
+  # img <- paste0("images/photos/",image_list[[2]])
+  # p1 <- ggdraw() + draw_image(img, scale = 0.9)
+  # class(p1)
+  # ggplot2::ggsave(plot = p1, path = "images/plots/",filename = image[[2]])
+  # p2 <- ggdraw() + draw_image(img, scale = 0.9)
+  # p2
+  # plot_grid(p1,p2)
+# }
+
+library(stringr)
+library(tidyverse)
+
+
+
+trial <- read.csv("tables/AYT20_SINDEX.csv")
+View(trial)
+
+# View(trial)
+###attach(trial)
+
+trial <- trial %>% select(-c("SN","X","Selected", "X.1"))
+
+get_genotypes <- function(){
+  return(trial$accession_name)
+}
+genotype <- as.list(get_genotypes())
+
+
+image_list
+
+get_images <- function(genotype, pattern){
+list_gen <- c()
+  for(i in 1:length(image_list)){
+    if(stringr::str_detect(image_list[[i]], regex(genotype)) == TRUE){
+      if(stringr::str_detect(image_list[[i]], regex(pattern)) == TRUE){
+        list_gen[[length(list_gen) + 1]] <- image_list[[i]]
+      }
+    }
+  }
+  return(list_gen)
+}
+
+table_chunk <- function(gene){
+  df <- trial %>% filter(accession_name == gene)
+  FYLD <- df$FYLD
+  DYLD <- df$DYLD
+  DM <- df$DM
+  SI <- df$SINDEX
+  new_df <- data.frame(Trait = c("FYLD", "DYLD", "DM", "SINDEX"), 
+                       Value = c(FYLD, DYLD, DM, SI))
+  return(new_df)
+}
+
+library(knitr)
+
+class(genotype)
+
+lapply(1:length(genotype), function(i){
+  
+  rep1 <- get_images(genotype = genotype[[i]], "rep1")
+  rep2 <- get_images(genotype = genotype[[i]], "rep2")
+  
+  if(!is.null(rep1) || !is.null(rep2)){
+    reps <- append(rep1, rep2)
+    img <- c()
+    for(j in 1:length(reps)){
+      path_ <- paste0("images/21.GS.C4B.AYT.20.IB_resize/",reps[[j]])  
+      img[[length(img) + 1]] <- path_
+    }
+    
+    length(img)
+    
+    print(genotype[[i]])
+    print(kable(table_chunk(genotype[[i]])))
+    p1 <- ggdraw() + draw_image(img[[1]], scale = 0.9)
+    if(length(img) > 1){
+      p2 <- ggdraw() + draw_image(img[[2]], scale = 0.9)
+      x <- plot_grid(p1,p2)
+      ggsave(paste0("images/image_folder/", genotype[[i]],".jpg"), x)
+    } else if(length(img) == 1){
+      x <- plot_grid(p1)
+      ggsave(paste0("images/image_folder/", genotype[[i]],".jpg"), x)    
+    } else {
+        x <- plot_grid(p1, labels = c("Rep 2"))
+        ggsave(paste0("images/image_folder/", genotype[[i]],".jpg"), x)
+     }
+  }
+}) -> suppress
+
+
+```
+
+
