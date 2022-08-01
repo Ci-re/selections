@@ -578,7 +578,7 @@ get_genotypes <- function(){
 
 ### Select a directory and import images
 image_list <- list.files(path = "images/photos/", pattern = ".jpg")
-image_list
+##image_list
 ##head(image_list)
 ```
 
