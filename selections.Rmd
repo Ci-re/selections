@@ -29,8 +29,9 @@ library(knitr)
 library(tidyverse)
 
 # ayt20_sindex selection
+setwd("~/Desktop/git_workspace/RMKRDpRCT/")
 
-ayt20_sindex <- read_csv("AYT20_SINDEX.csv") %>%
+ayt20_sindex <- read_csv("tables/AYT20_SINDEX.csv") %>%
   janitor::clean_names() %>% 
   select(accession_name:sindex)
 
@@ -109,6 +110,19 @@ ggsave("t10p_barplot1.pdf", width=20, height=20)
 # Check Mean Data
 
 ### table include check_mean values
+<style> 
+.table-wrapper {
+  overflow: auto;
+  height: 200px;
+  width: 100%;
+}
+thead, th {
+  top: 0;
+  position: sticky;
+  z-index: 2;
+}
+</style>
+
 
 ```{r, echo=FALSE, message=FALSE, error=FALSE}
 library(knitr)
@@ -117,8 +131,9 @@ ayt20_sindex %>%
   mutate_if(is.numeric, round,2) %>% 
   kbl(.) %>%
   # add_header_above(c("a" = 5, "b" = 18)) %>%
-  kable_paper() %>%
-  scroll_box(width = "100%", height = "200px")
+  kable_paper() 
+
+  #%>% scroll_box(width = "100%", height = "200px", fixed_thead = TRUE)
 ```
 ### Table for percent comparism to check_mean values
 
@@ -127,8 +142,8 @@ ayt20_sindex_checkdiff %>%
   mutate_if(is.numeric, round,2) %>% 
   kbl(.) %>%
   # add_header_above(c("a" = 5, "b" = 18)) %>%
-  kable_paper() %>%
-  scroll_box(width = "100%", height = "200px")
+  kable_paper()
+  # scroll_box(width = "100%", height = "200px")
 
 ```
 
