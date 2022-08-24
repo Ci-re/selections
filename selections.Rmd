@@ -1,5 +1,5 @@
 ---
-title: "Selections"
+title: "Advancement"
 author: "Cletus Emmanuel"
 date: '2022-07-22'
 output:
@@ -16,100 +16,102 @@ knitr::opts_chunk$set(echo = TRUE)
 library(tidyverse)
 library(readxl)
 ## library(magick)
-library(tcltk)
+# library(tcltk)
 library(knitr)
 
 ```
 
-## 21.GS.C4B.AYT.20.IB
-
-
+## UYT.40.IB.MK.AG.ON.UB.OT
 
 ```{r, echo=FALSE, include=FALSE, message=FALSE, error=FALSE}
 library(tidyverse)
 
-# ayt20_sindex selection
-setwd("~/Desktop/git_workspace/RMKRDpRCT/")
+# uyt40_sindex selection
+setwd("~/Desktop/git_workspace/UYT40_sINDEX/")
 
-ayt20_sindex <- read_csv("tables/AYT20_SINDEX.csv") %>%
+uyt40_sindex <- read_excel("tables/BLUPS-UYT-40.xls") %>%
   janitor::clean_names() %>% 
-  select(accession_name:sindex)
-
+  select(accession:index)
+colnames(uyt40_sindex)[13] <- "sindex"
 
 # list of checks present in dataset
 checks <- c("IITA-TMS-IBA000070","TMEB419","TMS13F1160P0004","TMS14F1036P0007","IITA-TMS-IBA30572","IITA-TMS-IBA980581")
 
 # calculate for checks average 
-checks_mean <- ayt20_sindex %>%
-  filter(accession_name %in% checks) %>%
-  add_row(accession_name = "check_mean", summarise(., across(where(is.numeric), mean))) %>%
-  filter(accession_name == "check_mean")
+checks_mean <- uyt40_sindex %>%
+  filter(accession %in% checks) %>%
+  add_row(accession = "check_mean", summarise(., across(where(is.numeric), mean))) %>%
+  filter(accession == "check_mean")
 
 # insert check mean into dataset
-ayt20_sindex <- bind_rows(ayt20_sindex,checks_mean)
+uyt40_sindex <- bind_rows(uyt40_sindex,checks_mean)
 
 # dataset for percentage difference against checks average
-ayt20_sindex_checkdiff <- ayt20_sindex %>% 
+uyt40_sindex_checkdiff <- uyt40_sindex %>% 
   select(-sindex) %>% 
-  mutate(across(where(is.numeric), .fns = ~((./.[accession_name == "check_mean"]-1)*100))) %>% 
-  mutate(sindex=ayt20_sindex$sindex) %>% 
+  mutate(across(where(is.numeric), .fns = ~((./.[accession == "check_mean"]-1)*100))) %>% 
+  mutate(sindex=uyt40_sindex$sindex) %>% 
   mutate(rank = factor(row_number()))
 
 
-#  skimr::skim(ayt20_sindex)
-# skimr::skim(ayt20_sindex_checkdiff)
+#  skimr::skim(uyt40_sindex)
+# skimr::skim(uyt40_sindex_checkdiff)
 
-# Hmisc::describe(ayt20_sindex)
-# Hmisc::describe(ayt20_sindex_checkdiff)
+# Hmisc::describe(uyt40_sindex)
+# Hmisc::describe(uyt40_sindex_checkdiff)
 # 
-# psych::describe(ayt20_sindex)
-# psych::describe(ayt20_sindex_checkdiff)
+# psych::describe(uyt40_sindex)
+# psych::describe(uyt40_sindex_checkdiff)
 # 
-# summarytools::descr(ayt20_sindex)
-# summarytools::descr(ayt20_sindex_checkdiff)
+# summarytools::descr(uyt40_sindex)
+# summarytools::descr(uyt40_sindex_checkdiff)
 # 
-# summarytools::dfSummary(ayt20_sindex)
-# summarytools::dfSummary(ayt20_sindex_checkdiff)
+# summarytools::dfSummary(uyt40_sindex)
+# summarytools::dfSummary(uyt40_sindex_checkdiff)
 
 
 # pt_fun <- function(x, )
 # 
-# map2_df(checks_mean[,-1], ayt20_sindex[,-1], `/`) %>% 
+# map2_df(checks_mean[,-1], uyt40_sindex[,-1], `/`) %>% 
 #   -1 * 100 %>% 
-#   add_column(accession_name = ayt20_sindex$accession_name, .before = "sprout")
+#   add_column(accession = uyt40_sindex$accession, .before = "sprout")
 
 ```
 
 
-```{r, include=FALSE, echo=FALSE, message=FALSE}
-ayt20_sindex_checkdiff %>% 
-  select(-c(l,a,b, rtwt)) %>% 
-  select(accession_name,fyld,dyld,dm,shtwt,everything()) %>% 
-  pivot_longer(-c(accession_name,rank,sindex), names_to = "traits", values_to = "values") %>%
+```{r, include=TRUE, echo=FALSE, message=FALSE}
+# barplot_checkdiff <- uyt40_sindex_checkdiff %>%
+#   select(-c(rtwt)) %>%
+#   select(accession,fyld,dyld,dm,shtwt,everything()) %>%
+#   pivot_longer(-c(accession,rank,sindex), names_to = "traits", values_to = "values") %>%
+# 
+#  # group_by(traits) %>%
+#   # top_frac(.1,sindex) %>%
+#   #ungroup() %>%
+# 
+#   # mutate(traits = fct_reorder(traits, values)) %>%
+#   ggplot(aes(fct_inorder(traits), values)) +
+#   geom_col(aes(fill = values), stat = "identity", color=alpha("black",.3)) +
+#   # facet_grid( vars(fct_inorder(traits)), vars(accession), scales = "free", space = "free") +
+#   # geom_hline(aes(yintercept = 0, alpha = 0.1, color="blue")) +
+#   geom_text(aes(label= round(values,2)), position = position_stack(vjust = 0.5)) +
+#   # geom_text(aes(label=round(values, 2)), vjust=0) +
+#   scale_fill_gradient2(low = "red", mid = "white", high = "green", midpoint= 0) +
+#   scale_y_continuous(labels = function(x) paste0(x, "%")) +
+#   facet_wrap(~accession, ncol = 1, strip.position = "right", scales = "free") +
+#   labs(x = "traits", y = "percent difference from checks_mean") +
+#   theme_bw() +
+#   theme(
+#   strip.background = element_rect(fill = "grey20", color = "grey80", size = 1),
+#   strip.text = element_text(colour = "white", size = 5))
+  # theme(strip.text.x = element_text(size = 8))
+# ggsave(plot = barplot_checkdiff, "images/plots/SIvsTraits.jpg", width = 12, height = 50, limitsize = FALSE)
   
- # group_by(traits) %>%
-  # top_frac(.1,sindex) %>%
-  #ungroup() %>%
-  
-  # mutate(traits = fct_reorder(traits, values)) %>%
-  ggplot(aes(fct_inorder(traits), values)) +
-  geom_col(aes(fill = values), stat = "identity", color=alpha("black",.3)) +
-  # facet_grid( vars(fct_inorder(traits)), vars(accession_name), scales = "free", space = "free") +
-  # geom_hline(aes(yintercept = 0, alpha = 0.1, color="blue")) +
-  geom_text(aes(label= round(values,2)), position = position_stack(vjust = 0.5)) +
-  # geom_text(aes(label=round(values, 2)), vjust=0) +
-  scale_fill_gradient2(low = "red", mid = "white", high = "green", midpoint= 0) +
-  scale_y_continuous(labels = function(x) paste0(x, "%")) +
-  facet_wrap(~accession_name, ncol = 1, strip.position = "right", scales = "free") +
-  labs(x = "traits", y = "percent difference from checks_mean") +
-  theme_bw() 
-  
-ggsave("t10p_barplot1.pdf", width=20, height=20)
-
+# ggsave("t10p_barplot1.pdf", width=20, height=20)
 ```
 # Check Mean Data
 
-### table include check_mean values
+### Table include check_mean values
 <style> 
 .table-wrapper {
   overflow: auto;
@@ -127,7 +129,7 @@ thead, th {
 ```{r, echo=FALSE, message=FALSE, error=FALSE}
 library(knitr)
 library(kableExtra)
-ayt20_sindex %>% 
+uyt40_sindex %>% 
   mutate_if(is.numeric, round,2) %>% 
   kbl(.) %>%
   # add_header_above(c("a" = 5, "b" = 18)) %>%
@@ -138,7 +140,7 @@ ayt20_sindex %>%
 ### Table for percent comparism to check_mean values
 
 ```{r, echo=FALSE, message=FALSE, error=FALSE}
-ayt20_sindex_checkdiff %>% 
+uyt40_sindex_checkdiff %>% 
   mutate_if(is.numeric, round,2) %>% 
   kbl(.) %>%
   # add_header_above(c("a" = 5, "b" = 18)) %>%
@@ -149,8 +151,9 @@ ayt20_sindex_checkdiff %>%
 
 
 
-```{r, results='asis', echo=FALSE, message=FALSE, error=FALSE}
-plot_image_path <- "images/plots/plots.jpg"
+```{r, results='asis', include=FALSE,echo=FALSE, message=FALSE, error=FALSE}
+
+plot_image_path <- "images/plots/SIvsTraits.jpg"
   cat("\n")
   cat("# Percentage difference against checks mean")
   cat("\n")
@@ -159,13 +162,13 @@ plot_image_path <- "images/plots/plots.jpg"
 ```
 
 
-# Correlation plots for traits and selection index comparism
+# Correlation plots
 
 ```{r, echo=FALSE, message=FALSE,error=FALSE}
 library(ggcorrplot)
 
-corr <- round(cor(ayt20_sindex[,-1], use = "pairwise.complete.obs"), 1)
-p.mat <- cor_pmat((ayt20_sindex[,-1]), use = "pairwise.complete.obs")
+corr <- round(cor(uyt40_sindex[,-1], use = "pairwise.complete.obs"), 1)
+p.mat <- cor_pmat((uyt40_sindex[,-1]), use = "pairwise.complete.obs")
 
 ggcorrplot(corr, method = c("square"), type = c("lower"), 
            ggtheme = ggplot2::theme_minimal, title = "",
@@ -182,7 +185,7 @@ ggcorrplot(corr, method = c("square"), type = c("lower"),
 
 # library(corrr)
 # 
-# column_to_rownames(ayt20_sindex, var =  "accession_name") %>%
+# column_to_rownames(uyt40_sindex, var =  "accession") %>%
 #   corrr::correlate() %>%
 #   corrr::focus(sindex) %>% 
 #   dplyr::mutate(term = reorder(term, sindex)) %>%
@@ -193,48 +196,48 @@ ggcorrplot(corr, method = c("square"), type = c("lower"),
 
 ```
 
-# Heatmaps
+# Heatmaps 
 
 
-```{r out.width="100%", echo=FALSE, message=FALSE}
+```{r out.width="100%", fig.height=25, fig.width=15, fig.align='center', echo=FALSE, message=FALSE}
 library(superheat)
 
-a2h <- ayt20_sindex %>%
+u4h <- uyt40_sindex %>%
   # arrange(desc(sindex)) %>%
-  column_to_rownames("accession_name")
+  column_to_rownames("accession")
 
-dm <- paste(a2h$dm, "dm")
-sindex <- paste(a2h$sindex, "sindex")
+dm <- paste(u4h$dm, "dm")
+sindex <- paste(u4h$sindex, "sindex")
 
 # set the text colors 
 # identify all scaled values that fall below -0.3
-ayt20.col <- scale(a2h) < -0.3
+ayt20.col <- scale(u4h) < -0.3
 # set all values that satisfy the condition to "white"
 ayt20.col <- gsub("TRUE", "white", ayt20.col)
 # set all values that do not satisfy the condition to "black"
 ayt20.col <- gsub("FALSE", "black", ayt20.col)
 # convert to matrix
-ayt20.col <- matrix(ayt20.col, ncol = ncol(a2h))
+ayt20.col <- matrix(ayt20.col, ncol = ncol(u4h))
 
-ayt20.size <- scale(a2h) + 1.2
+ayt20.size <- scale(u4h) + 1.2
 
 
 set.seed(2016113)
-superheat(a2h,
+superheat(u4h,
           # retain original order of rows/cols
           # pretty.order.rows = TRUE,
           # pretty.order.cols = TRUE,
           # scale the matrix columns
           scale = TRUE,
           # order the rows by selection index
-          order.rows = order(ayt20_sindex$sindex),
+          order.rows = order(uyt40_sindex$sindex),
           
           # change the color
           # heat.col.scheme = "blue",
           # change the color (#b35806 = brown and #542788 = purple)
-          heat.pal = c("red", "yellow", "green"),
+          heat.pal = c("red", "white", "darkgreen"),
           # Color transitions
-          heat.pal.values = c(0, 0.5, 1),
+          # heat.pal.values = c(0, 0.5, 1),
           # # color limits
           # heat.lim = c(-1, 2),
           # heat.na.col = "white", # na values
@@ -253,10 +256,10 @@ superheat(a2h,
           # membership.rows = fct_inorder(sindex)
           
           # plot title
-          title = "Superheat for ayt20 \n selection index",
+          title = "Superheat for UYT 40 \n selection index",
           title.size = 5,
           # row title
-          row.title = "accession_name",
+          row.title = "accession",
           row.title.size = 5,
           # col title
           column.title = "traits",
@@ -264,31 +267,31 @@ superheat(a2h,
           
           # adjacent plots
           # # add selection index as a scatterplot next to the rows
-          # yr = a2h$sindex,
+          # yr = u4h$sindex,
           # yr.axis.name = "selection index"
           
           # add text matrix
-          X.text = round(as.matrix(a2h), 1),
-          X.text.col = ayt20.col,
-          #X.text.size = 4,
-          X.text.size = ayt20.size,
+          # X.text = round(as.matrix(u4h), 1),
+          # X.text.col = ayt20.col,
+          # #X.text.size = 4,
+          # X.text.size = ayt20.size,
           # X.text.angle = 12,
           
           # change the size of the labels
-          left.label.size = 0.4,
+          left.label.size = 0.24,
           bottom.label.size = 0.24,
           
           # change the size of the label text
-          left.label.text.size = 3,
-          bottom.label.text.size = 4,
+          left.label.text.size = 4,
+          bottom.label.text.size = 8,
           
           # # change the color of the labels
           # left.label.col = "white",
           # bottom.label.col = c("#b3e2cd","#fdcdac","#e5d8bd"),
           
           # change the color of the label text
-          left.label.text.col = "red",
-          bottom.label.text.col = c("orange","cornflowerblue"),
+          left.label.text.col = "black",
+          bottom.label.text.col = "black",
           
           # change the angle of the label text
           bottom.label.text.angle = 90,
@@ -323,7 +326,7 @@ superheat(a2h,
           # membership.rows = sindex,
           # 
           # # place each variable in its own cluster
-          # membership.cols = 1:ncol(a2h),
+          # membership.cols = 1:ncol(u4h),
           # bottom.label = "variable",
           # 
           # # smooth the heatmap within clusters
@@ -342,7 +345,7 @@ superheat(a2h,
 # extracting the clusters
 
 library(superheat)
-superheatmap <- superheat(a2h,
+superheatmap <- superheat(u4h,
                           # scale the matrix columns
                           scale = TRUE,
                           # generate three column clusters
@@ -354,12 +357,12 @@ superheatmap <- superheat(a2h,
 superheatmap$membership.rows
 
 
-superheat(dplyr::select(a2h, -sindex, -fyld), 
+superheat(dplyr::select(u4h, -sindex, -fyld), 
           # scale the variables/columns
           scale = T,
           
           # cluster the rows
-          membership.rows = paste(a2h$fyld, "fyld"),
+          membership.rows = paste(u4h$fyld, "fyld"),
           left.label = "variable",
           
           # change the size of the label text
@@ -367,9 +370,9 @@ superheat(dplyr::select(a2h, -sindex, -fyld),
           bottom.label.text.size = 4,
           
           # add selection index as a scatterplot next to the rows
-          yr = a2h$sindex,
+          yr = u4h$sindex,
           yr.axis.name = "selection index",
-          yr.obs.col = rep("paleturquoise4", nrow(a2h)),
+          yr.obs.col = rep("paleturquoise4", nrow(u4h)),
           yr.point.size = 4
           )
 
@@ -377,31 +380,31 @@ superheat(dplyr::select(a2h, -sindex, -fyld),
 
 ```
 
-```{r out.width="100%", echo=FALSE, message=FALSE, include=FALSE}
-print_col_checks <- a2h %>% 
+```{r out.width="100%", fig.height= 25, fig.width= 15, echo=FALSE, message=FALSE, include=FALSE}
+print_col_checks <- u4h %>% 
   mutate(row_number = row_number()) %>% 
  .[checks,] #%>%
  #  select(row_number) %>% 
  #  as.vector() 
 
-point.col <- rep("wheat3", nrow(a2h))
+point.col <- rep("wheat3", nrow(u4h))
 # color checks
 point.col[print_col_checks[c(1:ncol(print_col_checks)),13]] <- "red"
 
 # the side plot here highlights the checks in red colour 
 # plot a super heatmap
-superheat(dplyr::select(a2h, -sindex), 
+superheat(dplyr::select(u4h, -sindex), 
           # scale the variables/columns
           scale = T,
           # order the rows by selection index
-          order.rows = order(ayt20_sindex$sindex),
+          order.rows = order(uyt40_sindex$sindex),
           
           # change the size of the label text
-          left.label.text.size = 2.2,
+          left.label.text.size = 4,
           bottom.label.text.size = 4,
 
           # add selection index as a scatterplot next to the rows
-          yr = a2h$sindex,
+          yr = u4h$sindex,
           yr.axis.name = "selection index",
           # change the color of the points
           yr.obs.col = point.col,
@@ -409,43 +412,43 @@ superheat(dplyr::select(a2h, -sindex),
 
 ```
 
+# Heat Maps with Correlation Barplot
 
-
-```{r, echo=FALSE, message=FALSE}
-superheat(dplyr::select(a2h, -sindex), 
+```{r, echo=FALSE, message=FALSE, fig.align='center', fig.height=25, fig.width=15, out.width="100%"}
+superheat(dplyr::select(u4h, -sindex), 
           # scale the variables/columns
           scale = T,
           # order the rows by selection index
-          order.rows = order(ayt20_sindex$sindex),
+          order.rows = order(uyt40_sindex$sindex),
 
           # # add selection index as a scatterplot next to the rows
-          # yr = a2h$sindex,
+          # yr = u4h$sindex,
           # yr.axis.name = "selection index",
           # # change the color of the points
           # yr.obs.col = point.col,
           # yr.point.size = 4
           
           # # add selection index as a line plot next to the rows
-          # yr =a2h$sindex,
+          # yr =u4h$sindex,
           # yr.axis.name = "selection index",
           # yr.plot.type = "line",
           # # order the rows by mpg
-          # order.rows = order(a2h$sindex)
+          # order.rows = order(u4h$sindex)
           
           # # loess curve
           # # add selection index as a smoothed line plot next to the rows
-          # yr = a2h$sindex,
+          # yr = u4h$sindex,
           # yr.axis.name = "selection index",
           # yr.plot.type = "smooth",
           # # change the line thickness and color
           # yr.line.size = 4,
           # yr.line.col = "red4",
           # # order the rows by b
-          # order.rows = order(a2h$b)
+          # order.rows = order(u4h$b)
           
           # # linear regression line
           # # add selection index as a smoothed line plot  next to the rows
-          # yr = a2h$sindex,
+          # yr = u4h$sindex,
           # yr.axis.name = "selection index",
           # yr.plot.type = "smooth",
           # smoothing.method = "lm",
@@ -453,33 +456,33 @@ superheat(dplyr::select(a2h, -sindex),
           # yr.line.size = 4,
           # yr.line.col = "plum4",
           # # order the rows by b
-          # order.rows = order(a2h$b)
+          # order.rows = order(u4h$b)
           
           # # scatterplot with connecting line plot
           # # add selection index as a scatter line plot next to the rows
-          # yr = a2h$sindex,
+          # yr = u4h$sindex,
           # yr.axis.name = "selection index",
           # yr.plot.type = "scatterline",
           # # change the line color
           # yr.line.col = "tomato3",
-          # yr.obs.col = rep("orange", nrow(a2h)),
+          # yr.obs.col = rep("orange", nrow(u4h)),
           # yr.point.size = 4,
           # # order the rows by b
-          # order.rows = order(a2h$b)
+          # order.rows = order(u4h$b)
           
           # # scatterplot with smooth line
           # # add selection index as a scatter smoothed plot next to the rows
-          # yr = a2h$sindex,
+          # yr = u4h$sindex,
           # yr.axis.name = "selection index",
           # yr.plot.type = "scattersmooth",
           # # change the line color
           # yr.line.col = "tomato3",
-          # yr.obs.col = rep("orange", nrow(a2h)),
+          # yr.obs.col = rep("orange", nrow(u4h)),
           # # order the rows by b
-          # order.rows = order(a2h$b)
+          # order.rows = order(u4h$b)
           
           # # add selection index as a barplot next to the rows
-          # yr = a2h$sindex,
+          # yr = u4h$sindex,
           # yr.axis.name = "selection index",
           # yr.plot.type = "bar",
           # # set bar colors
@@ -487,15 +490,15 @@ superheat(dplyr::select(a2h, -sindex),
           # yr.cluster.col = c("beige", "white", "beige")
           
           # change the size of the label text
-          left.label.text.size = 3,
-          bottom.label.text.size = 4,
+          left.label.text.size = 6,
+          bottom.label.text.size = 6,
           
           # change the size of the labels
           left.label.size = 0.3,
           # bottom.label.size = 0.24,
           
           # add selection index as a scatterplot next to the rows
-          yr = a2h$sindex,
+          yr = u4h$sindex,
           yr.axis.name = "selection index",
           yr.plot.size = 0.2,
           # yr.lim = c(0, 60),
@@ -503,7 +506,7 @@ superheat(dplyr::select(a2h, -sindex),
           yr.obs.col = point.col,
           yr.point.size = 4,
           # add correlation between each variable and selection index
-          yt = cor(a2h)[-12,"sindex"],
+          yt = cor(u4h)[-12,"sindex"],
           yt.plot.type = "bar",
           yt.axis.name = "Correlation with \n selection index",
           #yt.lim = c(-1.5, 1)
@@ -518,58 +521,60 @@ superheat(dplyr::select(a2h, -sindex),
 ```
 
 
+
+
 ```{r out.width="100%", echo=FALSE, message=FALSE, error=FALSE, include=FALSE}
 # plot a super heatmap
 
-library(dplyr)
-sindex.per.cluster <- a2h %>% 
-  group_by(b) %>% 
-  summarize(sindex.avg = mean(sindex)) %>% 
-  select(sindex.avg) %>%
-  unlist
-superheat(dplyr::select(a2h, -sindex, -b), 
-          # scale the variables/columns
-          scale = T,
-          
-          # cluster the rows
-          membership.rows = paste(a2h$b, "b"),
-          left.label = "variable",
-          
-          # change the size of the label text
-          left.label.text.size = 3,
-          bottom.label.text.size = 4,
-          
-          # change the size of the labels
-          left.label.size = 0.3,
-          # bottom.label.size = 0.24,
-          
-          # boxplot
-          # add sindex per cluster as a boxplot
-          yr = a2h$sindex,
-          yr.axis.name = "selection index",
-          yr.plot.type = "boxplot")
-
-# ayt20s_cor <- cor(ayt20_sindex[-1])
+# library(dplyr)
+# sindex.per.cluster <- u4h %>% 
+#   group_by(b) %>% 
+#   summarize(sindex.avg = mean(sindex)) %>% 
+#   select(sindex.avg) %>%
+#   unlist
+# superheat(dplyr::select(u4h, -sindex), 
+#           # scale the variables/columns
+#           scale = T,
+#           
+#           # cluster the rows
+#           membership.rows = paste(u4h$b, "b"),
+#           left.label = "variable",
+#           
+#           # change the size of the label text
+#           left.label.text.size = 3,
+#           bottom.label.text.size = 4,
+#           
+#           # change the size of the labels
+#           left.label.size = 0.3,
+#           # bottom.label.size = 0.24,
+#           
+#           # boxplot
+#           # add sindex per cluster as a boxplot
+#           yr = u4h$sindex,
+#           yr.axis.name = "selection index",
+#           yr.plot.type = "boxplot")
 # 
-# superheat::superheat(ayt20s_cor,
-#                      # scale = TRUE,
-#                      row.dendrogram = TRUE,
-#                      col.dendrogram = TRUE,
-#                      
-#                      # add text matrix
-#                      X.text = round(as.matrix(ayt20s_cor), 1),
-#                      X.text.col = "white",
-#                      
-#                      # change the size of the label text
-#                      left.label.text.size = 3,
-#                      bottom.label.text.size = 3)
-
-
-# # best way to save our superheat plot
+# # ayt20s_cor <- cor(uyt40_sindex[-1])
+# # 
+# # superheat::superheat(ayt20s_cor,
+# #                      # scale = TRUE,
+# #                      row.dendrogram = TRUE,
+# #                      col.dendrogram = TRUE,
+# #                      
+# #                      # add text matrix
+# #                      X.text = round(as.matrix(ayt20s_cor), 1),
+# #                      X.text.col = "white",
+# #                      
+# #                      # change the size of the label text
+# #                      left.label.text.size = 3,
+# #                      bottom.label.text.size = 3)
 # 
-# png("superheat.png", height = 900, width = 800)
-# superheat(X = mtcars, scale = T)
-# dev.off()
+# 
+# # # best way to save our superheat plot
+# # 
+# # png("superheat.png", height = 900, width = 800)
+# # superheat(X = mtcars, scale = T)
+# # dev.off()
 
 ```
 
@@ -577,13 +582,13 @@ superheat(dplyr::select(a2h, -sindex, -b),
 ```{r, echo=FALSE, message=FALSE}
 ###trial <- read_excel(file.choose(), sheet = "Advancement")
 
-trial <- read.csv("tables/AYT20_SINDEX.csv")
+trial <- uyt40_sindex
 ###attach(trial)
 
-tria <- trial %>% select(-c("SN","X","Selected", "X.1"))
+# tria <- trial %>% select(-c("Selected"))
 
 get_genotypes <- function(){
-  return(trial$accession_name)
+  return(trial$accession)
 }
 ```
 
@@ -621,11 +626,11 @@ list_gen <- c()
 ```{r, echo=FALSE, message=FALSE}
 
 table_chunk <- function(gene){
-  df <- trial %>% filter(accession_name == gene)
-  FYLD <- df$FYLD
-  DYLD <- df$DYLD
-  DM <- df$DM
-  SI <- df$SINDEX
+  df <- trial %>% filter(accession == gene)
+  FYLD <- df$fyld
+  DYLD <- df$dyld
+  DM <- df$dm
+  SI <- df$sindex
   new_df <- data.frame(Trait = c("FYLD", "DYLD", "DM", "SINDEX"), 
                        Value = c(FYLD, DYLD, DM, SI))
   return(new_df)
@@ -637,20 +642,22 @@ table_chunk <- function(gene){
 
 
 ```{r, echo=FALSE, message=FALSE, include=FALSE}
-list_of_plots <- list.files(path = "images/plots/")
+list_of_plots <- list.files(path = "images/plots/barplots/")
+list_of_plots
 
-
-# get_plot <- function(genotype){
+get_plot <- function(genotype){
 # list_gen <- c()
-#   for(i in 1:length(list_of_plots)){
-#     if(stringr::str_detect(list_of_plots[[i]], regex(genotype)) == TRUE){
-#         list_gen[[length(list_gen) + 1]] <- list_of_plots[[i]]
-#     }
-#   }
-#   return(list_gen)
-# }
+  plot <- ""
+  for(i in 1:length(list_of_plots)){
+    if(stringr::str_detect(list_of_plots[[i]], regex(genotype)) == TRUE){
+        plot <- list_of_plots[i]
+    }
+  }
+  return(plot)
+}
 
-##get_plot("TMEB419")
+get_plot("IITA-TMS-IBA000070")
+
 ```
 
 # Genotype Images
@@ -663,7 +670,8 @@ list_of_plots <- list.files(path = "images/plots/")
   for(i in 1:length(genotypes)){
     j <- 1
     get_images(genotypes[[i]], "rep1")
-    if(!length(get_images(genotypes[[i]], "rep1")) < 1 || !length(get_images(genotypes[[i]], "rep2")) < 1){
+    if(!length(get_images(genotypes[[i]], "rep1")) < 1 || !length(get_images(genotypes[[i]], "rep2")) < 1 || 
+       !length(get_plot(genotypes[[i]])) < 1){
       rep1_images <- get_images(genotypes[[i]], "rep1")
       rep2_images <- get_images(genotypes[[i]], "rep2")
       cat("\n")
@@ -672,10 +680,15 @@ list_of_plots <- list.files(path = "images/plots/")
       df <- table_chunk(genotypes[[i]])
       print(kable(df, align = "l", caption = ""))
       cat("<br> \n")
-
+      plot_image <- get_plot(genotype = genotypes[[i]])
+      plot.path <- paste0("images/plots/barplots/",plot_image)
+      cat("![](",plot.path,") <br>")
+      cat("<center>",genotypes[[i]], "Against check mean </center> <br> <br>")
+      cat("\n")
       if(!length(get_images(genotypes[[i]], "rep1")) < 1) {
         for(j in 1:length(rep1_images)){
           cat("\n")
+          plot
           image.path <- paste0("images/photos/",rep1_images[[1]])
           cat("![](",image.path,") <br>")
           cat("<center> REP 1 </center>")
@@ -735,31 +748,31 @@ list_of_plots <- list.files(path = "images/plots/")
 # Relationship between Traits and SINDEX
 
 ```{r, results='asis', echo=FALSE, message=FALSE,error=FALSE}
-# ayt20s_long <- ayt20_sindex %>%
-#   select(-c(l,a,b, rtwt)) %>%
-#   select(accession_name,fyld,dyld,dm,shtwt,everything()) %>%
-#   pivot_longer(-c(accession_name,sindex), names_to = "traits", values_to = "values")
+# uyt40s_long <- uyt40_sindex %>%
+#   select(-c(rtwt)) %>%
+#   select(accession,fyld,dyld,dm,shtwt,everything()) %>%
+#   pivot_longer(-c(accession,sindex), names_to = "traits", values_to = "values")
 # 
 # library(ggrepel)
 # 
-# ayt20s_long %>%
+# uyt40s_long %>%
 # ggplot(aes(values, sindex)) +
 # #geom_hex(aes(color = SI_W), bins = 30) +
 # geom_point(aes(color = sindex > 80), alpha = 0.8) +
 # #geom_hex(aes(color = SI_W), alpha = 0.6) +
 # # scale_colour_gradient(low = "blue", high = "red") +
 # facet_wrap(~traits, scales = "free", ncol = 2) +
-# geom_text_repel(data=subset(ayt20s_long, sindex > 80), aes(values, sindex,label=accession_name), size = 4)
+# geom_text_repel(data=subset(uyt40s_long, sindex > 80), aes(values, sindex,label=accession), size = 4)
 # #
 # ggsave("images/plots/SIvsTraits.jpg", width = 12, height = 15)
-cat("![](","images/plots/SIvsTraits.jpg",")")
+# cat("![](","images/plots/SIvsTraits.jpg",")")
 ```
 
 ```{r, results='asis', echo=FALSE, message=FALSE,error=FALSE}
-# ayt20_scd_long <- ayt20_sindex_checkdiff %>%
+# ayt20_scd_long <- uyt40_sindex_checkdiff %>%
 #   select(-c(l,a,b, rtwt)) %>%
-#   select(accession_name,fyld,dyld,dm,shtwt,everything()) %>%
-#   pivot_longer(-c(accession_name,rank,sindex), names_to = "traits", values_to = "values")
+#   select(accession,fyld,dyld,dm,shtwt,everything()) %>%
+#   pivot_longer(-c(accession,rank,sindex), names_to = "traits", values_to = "values")
 # 
 # library(ggrepel)
 # 
@@ -771,7 +784,7 @@ cat("![](","images/plots/SIvsTraits.jpg",")")
 #   # scale_colour_gradient(low = "blue", high = "red") +
 #   facet_wrap(~traits, scales = "free", ncol = 2) +
 #   geom_text_repel(data=subset(ayt20_scd_long, sindex > 80),
-#                   aes(values, sindex,label=accession_name), size = 4)
+#                   aes(values, sindex,label=accession), size = 4)
 #   ggsave("../RMKRDpRCT/images/plots/SIvsTraits_p.jpg", width = 12, height = 15)
 
   # cat("![](","images/plots/SIvsTraits_p.jpg",")")
@@ -781,8 +794,8 @@ cat("![](","images/plots/SIvsTraits.jpg",")")
 # Phenotypic Values
 
 ```{r, echo=FALSE, message=FALSE, error=FALSE}
-ayt20_sindex %>% 
-  pivot_longer(-accession_name, names_to = "traits", values_to = "values") %>% 
+uyt40_sindex %>% 
+  pivot_longer(-accession, names_to = "traits", values_to = "values") %>% 
   ggplot(aes(traits, values, fill = traits)) +
   geom_violin(alpha = 0.7, color=NA) +
   geom_jitter(alpha = 0.3, width = 0.1) +
@@ -793,9 +806,9 @@ ayt20_sindex %>%
 ```
 
 ```{r, echo=FALSE, message=FALSE, error=FALSE}
-ayt20_sindex_checkdiff %>% 
-  select(-c(l,a,b, sindex)) %>% 
-  pivot_longer(-c(accession_name,rank), names_to = "traits", values_to = "values") %>%
+uyt40_sindex_checkdiff %>% 
+  select(-c(sindex)) %>% 
+  pivot_longer(-c(accession,rank), names_to = "traits", values_to = "values") %>%
    ggplot(aes(traits, values, fill = traits)) +
   geom_violin(alpha = 0.7, color=NA) +
   geom_jitter(alpha = 0.3, width = 0.1) +
