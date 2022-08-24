@@ -1,5 +1,5 @@
 ---
-title: "Advancement"
+title: "ADVANCEMENT"
 author: "Cletus Emmanuel"
 date: '2022-07-22'
 output:
@@ -35,7 +35,7 @@ uyt40_sindex <- read_excel("tables/BLUPS-UYT-40.xls") %>%
 colnames(uyt40_sindex)[13] <- "sindex"
 
 # list of checks present in dataset
-checks <- c("IITA-TMS-IBA000070","TMEB419","TMS13F1160P0004","TMS14F1036P0007","IITA-TMS-IBA30572","IITA-TMS-IBA980581")
+checks <- c("IITA-TMS-IBA000070","TMEB419","TMS13F1160P0004","IITA-TMS-IBA30572","IITA-TMS-IBA980581")
 
 # calculate for checks average 
 checks_mean <- uyt40_sindex %>%
@@ -111,7 +111,7 @@ uyt40_sindex_checkdiff <- uyt40_sindex %>%
 ```
 # Check Mean Data
 
-### Table include check_mean values
+### Table Data
 <style> 
 .table-wrapper {
   overflow: auto;
@@ -137,7 +137,7 @@ uyt40_sindex %>%
 
   #%>% scroll_box(width = "100%", height = "200px", fixed_thead = TRUE)
 ```
-### Table for percent comparism to check_mean values
+### Percentage comparism to check mean values
 
 ```{r, echo=FALSE, message=FALSE, error=FALSE}
 uyt40_sindex_checkdiff %>% 
@@ -230,7 +230,7 @@ superheat(u4h,
           # scale the matrix columns
           scale = TRUE,
           # order the rows by selection index
-          order.rows = order(uyt40_sindex$sindex),
+          # order.rows = order(uyt40_sindex$sindex),
           
           # change the color
           # heat.col.scheme = "blue",
@@ -386,6 +386,7 @@ print_col_checks <- u4h %>%
  .[checks,] #%>%
  #  select(row_number) %>% 
  #  as.vector() 
+
 
 point.col <- rep("wheat3", nrow(u4h))
 # color checks

@@ -22,7 +22,7 @@ for(i in 1:length(acc_names)){
     scale_fill_gradient2(low = "red", mid = "white", high = "darkgreen", midpoint= 0) +
     scale_y_continuous(labels = function(x) paste0(x, "%")) +
     # facet_wrap(~accession, ncol = 1, strip.position = "right", scales = "free") +
-    labs(x = "Traits", y = "Percentage Difference", title = paste0("<b>",y,"</b>")) +
+    labs(x = "Traits", y = "Percentage Difference", title =  acc_names[i] ) +
     theme_bw()
 
   ggsave(barplot_checkdiff, filename = paste0("images/plots/barplots/",acc_names[i], ".jpg"), height = 5, width = 15)
