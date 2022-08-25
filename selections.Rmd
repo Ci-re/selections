@@ -657,8 +657,6 @@ get_plot <- function(genotype){
   return(plot)
 }
 
-get_plot("IITA-TMS-IBA000070")
-
 ```
 
 # Genotype Images
