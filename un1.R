@@ -4,7 +4,7 @@ acc_names <- uyt40_sindex_checkdiff$accession
 for(i in 1:length(acc_names)){
   barplot_checkdiff <- uyt40_sindex_checkdiff %>%
     filter(accession == acc_names[i]) %>% 
-    select(-c(rtwt)) %>%
+    select(-c(rtwt, mcmds, mcmdi)) %>%
     select(accession,fyld,dyld,dm,shtwt,everything()) %>%
     pivot_longer(-c(accession,rank,sindex), names_to = "traits", values_to = "values") %>%
     
@@ -20,7 +20,7 @@ for(i in 1:length(acc_names)){
     geom_text(aes(label= round(values,2)), position = position_stack(vjust = 0.5), size = 7) +
     # geom_text(aes(label=round(values, 2)), vjust=0) +
     scale_fill_gradient2(low = "red", mid = "white", high = "darkgreen", midpoint= 0) +
-    scale_y_continuous(limits = c(-100,200), labels = function(x) paste0(x, "%")) +
+    scale_y_continuous(limits = c(-60,60), labels = function(x) paste0(x, "%")) +
     # facet_wrap(~accession, ncol = 1, strip.position = "right", scales = "free") +
     labs(x = "Traits", y = "Percentage Difference", title =  acc_names[i]) +
     theme_bw(base_size=24)

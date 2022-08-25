@@ -199,7 +199,7 @@ ggcorrplot(corr, method = c("square"), type = c("lower"),
 # Heatmaps 
 
 
-```{r out.width="100%", fig.height=25, fig.width=15, fig.align='center', echo=FALSE, message=FALSE}
+```{r out.width="100%", fig.height=18, fig.width=15, fig.align='center', echo=FALSE, message=FALSE}
 library(superheat)
 
 u4h <- uyt40_sindex %>%
@@ -278,12 +278,12 @@ superheat(u4h,
           # X.text.angle = 12,
           
           # change the size of the labels
-          left.label.size = 0.24,
+          left.label.size = 0.3,
           bottom.label.size = 0.24,
           
           # change the size of the label text
-          left.label.text.size = 4,
-          bottom.label.text.size = 8,
+          left.label.text.size = 6,
+          bottom.label.text.size = 6,
           
           # # change the color of the labels
           # left.label.col = "white",
@@ -415,7 +415,7 @@ superheat(dplyr::select(u4h, -sindex),
 
 # Heat Maps with Correlation Barplot
 
-```{r, echo=FALSE, message=FALSE, fig.align='center', fig.height=25, fig.width=15, out.width="100%"}
+```{r, echo=FALSE, message=FALSE, fig.align='center', fig.height=18, fig.width=15, out.width="100%"}
 superheat(dplyr::select(u4h, -sindex), 
           # scale the variables/columns
           scale = T,
